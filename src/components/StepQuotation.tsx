@@ -253,8 +253,9 @@ function QuotationEN({
             {[
               { step: "1", text: "Contract signing via purchase order or signed quotation with company stamp" },
               { step: "2", text: "Client sends employee list and dependents information" },
-              { step: "3", text: "3-5 business days: Employee registration in the Shamel database" },
-              { step: "4", text: "Launch and ongoing support" },
+              { step: "3", text: "Client to share proof of payment" },
+              { step: "4", text: "2-5 business days: Employee registration in the Shamel database" },
+              { step: "5", text: "Launch and ongoing support" },
             ].map((item) => (
               <div key={item.step} className="flex gap-3 items-start">
                 <div className="w-6 h-6 rounded-full bg-cyan-100 text-cyan-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
@@ -283,9 +284,6 @@ function QuotationEN({
           <h3 className="text-lg font-bold text-gray-900 mb-3 border-b-2 border-cyan-500 pb-2 inline-block">Terms &amp; Conditions</h3>
           <ul className="text-xs text-gray-600 space-y-1.5 mt-2 list-disc list-inside">
             <li>The Subscription is activated starting from the payment date and is valid for the duration of the selected plan.</li>
-            <li>Subscription fees will be automatically deducted at the end of each selected plan duration unless cancelled.</li>
-            <li>The subscription can be refunded if the request occurs within 24 hours of subscription and no service has been utilized.</li>
-            <li>The subscription can be cancelled at any time; auto-renewal will be disabled upon cancellation.</li>
             <li>Discount percentages vary according to the provider and the service, and are subject to modifications from time to time.</li>
             <li>All prices are in Egyptian Pounds (EGP) and are inclusive of 14% VAT.</li>
           </ul>
@@ -499,8 +497,9 @@ function QuotationAR({
             {[
               { step: "١", text: "إتمام التعاقد عن طريق إرسال أمر شراء أو التوقيع على هذا العرض مرفق بختم الشركة" },
               { step: "٢", text: "إرسال قائمة موظفي الشركة وأسماء التابعين لهم" },
-              { step: "٣", text: "من ٣ إلى ٥ أيام عمل: تسجيل الموظفين في قاعدة بيانات شامل" },
-              { step: "٤", text: "الإطلاق والدعم المستمر" },
+              { step: "٣", text: "مشاركة إثبات الدفع" },
+              { step: "٤", text: "من ٢ إلى ٥ أيام عمل: تسجيل الموظفين في قاعدة بيانات شامل" },
+              { step: "٥", text: "الإطلاق والدعم المستمر" },
             ].map((item) => (
               <div key={item.step} className="flex gap-3 items-start">
                 <div className="w-6 h-6 rounded-full bg-cyan-100 text-cyan-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
@@ -529,9 +528,6 @@ function QuotationAR({
           <h3 className="text-lg font-bold text-gray-900 mb-3 border-b-2 border-cyan-500 pb-2 inline-block">الشروط والأحكام</h3>
           <ul className="text-xs text-gray-600 space-y-1.5 mt-2 list-disc list-inside">
             <li>يتم تفعيل الاشتراك بدءًا من تاريخ الدفع ويكون صالحًا طوال مدة الخطة المحددة.</li>
-            <li>سيتم خصم رسوم الاشتراك تلقائيًا في نهاية كل مدة محددة للخطة ما لم يتم الإلغاء.</li>
-            <li>يمكن استرداد الاشتراك إذا حدث هذا الطلب خلال ٢٤ ساعة من الاشتراك ولم يتم الاستفادة من أي خدمة.</li>
-            <li>يمكن إلغاء الاشتراك في أي وقت وسيتم تعطيل التجديد التلقائي.</li>
             <li>تختلف نسب الخصم حسب مقدم الخدمة ونوع الخدمة، وتخضع للتعديلات من وقت لآخر.</li>
             <li>جميع الأسعار بالجنيه المصري وشاملة ضريبة القيمة المضافة (١٤٪).</li>
           </ul>
