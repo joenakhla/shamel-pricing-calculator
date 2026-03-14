@@ -105,7 +105,7 @@ export default function StepCompanyInfo({ formData, setFormData, onNext }: Props
             </li>
             <li className="flex items-start gap-3">
               <Pill size={18} className="mt-0.5 shrink-0" />
-              <span>Pharmacy discounts from {networkStats.pharmacies} pharmacies nationwide</span>
+              <span>Pharmacy co-payment program across {networkStats.pharmacies} pharmacies nationwide</span>
             </li>
           </ul>
         </div>
@@ -116,7 +116,7 @@ export default function StepCompanyInfo({ formData, setFormData, onNext }: Props
             {[
               { label: "Doctor Visits", value: "Up to 40%" },
               { label: "Labs & Scans", value: "Up to 80%" },
-              { label: "Pharmacy", value: "Up to 16%" },
+              { label: "Pharmacy", value: "Co-payment" },
               { label: "Surgeries", value: "All-inclusive" },
             ].map((item) => (
               <div key={item.label} className="bg-cyan-50 rounded-xl p-3">

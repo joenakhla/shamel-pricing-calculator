@@ -197,12 +197,12 @@ export default function StepPlanConfig({ formData, setFormData, onNext, onBack }
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-xs text-gray-400">Individual / month</p>
+                <p className="text-xs text-gray-400">Individual / year</p>
                 <p className="text-2xl font-bold text-gray-900">{formatEGP(tier.individualPrice)}</p>
                 <p className="text-xs text-gray-400 line-through">{formatEGP(ORIGINAL_INDIVIDUAL_PRICE)} EGP</p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-xs text-gray-400">Family / month</p>
+                <p className="text-xs text-gray-400">Family / year</p>
                 <p className="text-2xl font-bold text-gray-900">{formatEGP(tier.familyPrice)}</p>
                 <p className="text-xs text-gray-400 line-through">{formatEGP(ORIGINAL_FAMILY_PRICE)} EGP</p>
               </div>

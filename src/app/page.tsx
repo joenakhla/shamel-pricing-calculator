@@ -4,11 +4,15 @@ import { useState } from "react";
 import StepCompanyInfo from "@/components/StepCompanyInfo";
 import StepPlanConfig from "@/components/StepPlanConfig";
 import StepResults from "@/components/StepResults";
+import StepQuotationInfo from "@/components/StepQuotationInfo";
+import StepQuotation from "@/components/StepQuotation";
 import { calculatePricing, CalculationResult } from "@/lib/pricing";
 import {
   Building2,
   Users,
   BarChart3,
+  FileText,
+  FileCheck,
   CheckCircle2,
 } from "lucide-react";
 
@@ -16,6 +20,8 @@ const steps = [
   { label: "Company Info", icon: Building2 },
   { label: "Plan Setup", icon: Users },
   { label: "Results & ROI", icon: BarChart3 },
+  { label: "Quotation Details", icon: FileText },
+  { label: "Quotation", icon: FileCheck },
 ];
 
 export interface FormData {
@@ -27,6 +33,20 @@ export interface FormData {
   familyCount: number;
 }
 
+export interface QuotationData {
+  salesName: string;
+  salesTitle: string;
+  recipientName: string;
+  recipientTitle: string;
+  quotationDate: string;
+  language: "en" | "ar" | "both";
+  paymentTerms: string;
+  offerValidity: string;
+  customValidityDate: string;
+  lumpSumDiscount: number;
+  notes: string;
+}
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({
@@ -36,6 +56,19 @@ export default function Home() {
     planType: "individual",
     individualCount: 0,
     familyCount: 0,
+  });
+  const [quotationData, setQuotationData] = useState<QuotationData>({
+    salesName: "",
+    salesTitle: "",
+    recipientName: "",
+    recipientTitle: "",
+    quotationDate: new Date().toISOString().split("T")[0],
+    language: "en",
+    paymentTerms: "100_upfront",
+    offerValidity: "1_week",
+    customValidityDate: "",
+    lumpSumDiscount: 0,
+    notes: "",
   });
   const [result, setResult] = useState<CalculationResult | null>(null);
 
@@ -66,14 +99,30 @@ export default function Home() {
       individualCount: 0,
       familyCount: 0,
     });
+    setQuotationData({
+      salesName: "",
+      salesTitle: "",
+      recipientName: "",
+      recipientTitle: "",
+      quotationDate: new Date().toISOString().split("T")[0],
+      language: "en",
+      paymentTerms: "100_upfront",
+      offerValidity: "1_week",
+      customValidityDate: "",
+      lumpSumDiscount: 0,
+      notes: "",
+    });
     setResult(null);
   }
+
+  // On the quotation preview step, hide the stepper and go full width
+  const isQuotationPreview = currentStep === 4;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-teal-50">
       {/* Header */}
-      <header className="bg-white border-b border-cyan-100 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
+      <header className="bg-white border-b border-cyan-100 shadow-sm print:hidden">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center">
             <span className="text-white font-bold text-lg">S</span>
           </div>
@@ -84,50 +133,52 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
-        {/* Stepper */}
-        <div className="flex items-center justify-center mb-10">
-          {steps.map((step, i) => {
-            const Icon = step.icon;
-            const isActive = i === currentStep;
-            const isCompleted = i < currentStep;
-            return (
-              <div key={step.label} className="flex items-center">
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      isCompleted
-                        ? "bg-green-500 text-white"
-                        : isActive
-                        ? "bg-cyan-600 text-white shadow-lg shadow-cyan-200"
-                        : "bg-gray-200 text-gray-400"
-                    }`}
-                  >
-                    {isCompleted ? (
-                      <CheckCircle2 size={22} />
-                    ) : (
-                      <Icon size={22} />
-                    )}
+      <main className={`mx-auto px-4 py-8 ${isQuotationPreview ? "max-w-6xl" : "max-w-5xl"}`}>
+        {/* Stepper - hide on quotation preview */}
+        {!isQuotationPreview && (
+          <div className="flex items-center justify-center mb-10 overflow-x-auto">
+            {steps.map((step, i) => {
+              const Icon = step.icon;
+              const isActive = i === currentStep;
+              const isCompleted = i < currentStep;
+              return (
+                <div key={step.label} className="flex items-center">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                        isCompleted
+                          ? "bg-green-500 text-white"
+                          : isActive
+                          ? "bg-cyan-600 text-white shadow-lg shadow-cyan-200"
+                          : "bg-gray-200 text-gray-400"
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <CheckCircle2 size={20} />
+                      ) : (
+                        <Icon size={20} />
+                      )}
+                    </div>
+                    <span
+                      className={`text-[10px] sm:text-xs mt-2 font-medium whitespace-nowrap ${
+                        isActive ? "text-cyan-700" : isCompleted ? "text-green-600" : "text-gray-400"
+                      }`}
+                    >
+                      {step.label}
+                    </span>
                   </div>
-                  <span
-                    className={`text-xs mt-2 font-medium ${
-                      isActive ? "text-cyan-700" : isCompleted ? "text-green-600" : "text-gray-400"
-                    }`}
-                  >
-                    {step.label}
-                  </span>
+                  {i < steps.length - 1 && (
+                    <div
+                      className={`w-8 sm:w-16 h-1 mx-1 sm:mx-2 rounded-full transition-colors duration-300 ${
+                        i < currentStep ? "bg-green-400" : "bg-gray-200"
+                      }`}
+                    />
+                  )}
                 </div>
-                {i < steps.length - 1 && (
-                  <div
-                    className={`w-16 sm:w-24 h-1 mx-2 rounded-full transition-colors duration-300 ${
-                      i < currentStep ? "bg-green-400" : "bg-gray-200"
-                    }`}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Step Content */}
         <div className="animate-fade-in-up" key={currentStep}>
@@ -152,13 +203,32 @@ export default function Home() {
               companyName={formData.companyName}
               onBack={handleBack}
               onRestart={handleRestart}
+              onCreateQuotation={handleNext}
+            />
+          )}
+          {currentStep === 3 && result && (
+            <StepQuotationInfo
+              quotationData={quotationData}
+              setQuotationData={setQuotationData}
+              result={result}
+              onNext={handleNext}
+              onBack={handleBack}
+            />
+          )}
+          {currentStep === 4 && result && (
+            <StepQuotation
+              formData={formData}
+              quotationData={quotationData}
+              result={result}
+              onBack={handleBack}
+              onRestart={handleRestart}
             />
           )}
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white mt-12">
+      <footer className="border-t border-gray-200 bg-white mt-12 print:hidden">
         <div className="max-w-5xl mx-auto px-4 py-6 text-center text-sm text-gray-400">
           Powered by <span className="font-semibold text-cyan-600">Shamel</span> by Vezeeta &mdash; Egypt&apos;s #1 Healthcare Platform
         </div>

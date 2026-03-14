@@ -8,9 +8,11 @@ import {
   Wallet,
   PiggyBank,
   BadgePercent,
-  Download,
+  FileText,
   Shield,
   Sparkles,
+  UserRound,
+  UsersRound,
 } from "lucide-react";
 import ComparisonChart from "./ComparisonChart";
 import SavingsChart from "./SavingsChart";
@@ -20,13 +22,14 @@ interface Props {
   companyName: string;
   onBack: () => void;
   onRestart: () => void;
+  onCreateQuotation: () => void;
 }
 
 function formatEGP(n: number) {
   return new Intl.NumberFormat("en-EG").format(Math.round(n));
 }
 
-export default function StepResults({ result, companyName, onBack, onRestart }: Props) {
+export default function StepResults({ result, companyName, onBack, onRestart, onCreateQuotation }: Props) {
   const monthlyTotal = result.shamelTotalAnnual / 12;
 
   return (
@@ -45,10 +48,62 @@ export default function StepResults({ result, companyName, onBack, onRestart }: 
             </p>
           </div>
           <div className="text-right">
-            <p className="text-cyan-100 text-sm">Total Monthly Cost</p>
-            <p className="text-4xl font-bold animate-count-up">{formatEGP(monthlyTotal)} EGP</p>
-            <p className="text-cyan-200 text-sm">{formatEGP(result.shamelTotalAnnual)} EGP / year</p>
+            <p className="text-cyan-100 text-sm">Total Annual Cost</p>
+            <p className="text-4xl font-bold animate-count-up">{formatEGP(result.shamelTotalAnnual)} EGP</p>
+            <p className="text-cyan-200 text-sm">{formatEGP(monthlyTotal)} EGP / month</p>
           </div>
+        </div>
+      </div>
+
+      {/* Per-Plan Pricing Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Individual Price */}
+        {(result.planType === "individual" || result.planType === "mixed") && (
+          <div className="bg-white rounded-2xl border border-cyan-100 shadow-md p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-9 h-9 rounded-lg bg-cyan-50 flex items-center justify-center">
+                <UserRound size={18} className="text-cyan-600" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Individual Plan</p>
+                <p className="text-xs text-gray-400">{result.individualCount} employee{result.individualCount !== 1 ? "s" : ""}</p>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-cyan-700">{formatEGP(result.shamelIndividualYearly)} <span className="text-base font-medium text-gray-400">EGP/yr</span></p>
+            <p className="text-sm text-gray-500 mt-1">{formatEGP(result.shamelIndividualYearly / 12)} EGP/mo per person</p>
+          </div>
+        )}
+
+        {/* Family Price */}
+        {(result.planType === "family" || result.planType === "mixed") && (
+          <div className="bg-white rounded-2xl border border-teal-100 shadow-md p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center">
+                <UsersRound size={18} className="text-teal-600" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Family Plan</p>
+                <p className="text-xs text-gray-400">{result.familyCount} employee{result.familyCount !== 1 ? "s" : ""} (up to 4 members each)</p>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-teal-700">{formatEGP(result.shamelFamilyYearly)} <span className="text-base font-medium text-gray-400">EGP/yr</span></p>
+            <p className="text-sm text-gray-500 mt-1">{formatEGP(result.shamelFamilyYearly / 12)} EGP/mo per person</p>
+          </div>
+        )}
+
+        {/* Blended / Total */}
+        <div className="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-2xl border border-cyan-200 shadow-md p-6">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-9 h-9 rounded-lg bg-cyan-100 flex items-center justify-center">
+              <Wallet size={18} className="text-cyan-700" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Blended Average</p>
+              <p className="text-xs text-gray-400">Across all {result.employeeCount} employees</p>
+            </div>
+          </div>
+          <p className="text-3xl font-bold text-cyan-800">{formatEGP(result.shamelTotalAnnual / result.employeeCount)} <span className="text-base font-medium text-gray-400">EGP/yr</span></p>
+          <p className="text-sm text-gray-500 mt-1">{formatEGP(result.shamelTotalAnnual / 12 / result.employeeCount)} EGP/mo per employee</p>
         </div>
       </div>
 
@@ -56,8 +111,8 @@ export default function StepResults({ result, companyName, onBack, onRestart }: 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard
           icon={<Wallet size={20} />}
-          label="Per Employee / mo"
-          value={`${formatEGP(result.shamelTotalAnnual / 12 / result.employeeCount)} EGP`}
+          label="Per Employee / yr"
+          value={`${formatEGP(result.shamelTotalAnnual / result.employeeCount)} EGP`}
           color="cyan"
         />
         <MetricCard
@@ -204,15 +259,13 @@ export default function StepResults({ result, companyName, onBack, onRestart }: 
           <RotateCcw size={18} />
           Start Over
         </button>
-        <a
-          href="https://shamel-b2b.vercel.app/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 shadow-lg shadow-cyan-200 flex items-center justify-center gap-2 transition-all"
+        <button
+          onClick={onCreateQuotation}
+          className="flex-1 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 shadow-lg shadow-cyan-200 flex items-center justify-center gap-2 transition-all cursor-pointer"
         >
-          <Download size={18} />
-          Get Started with Shamel
-        </a>
+          <FileText size={18} />
+          Create Quotation
+        </button>
       </div>
     </div>
   );

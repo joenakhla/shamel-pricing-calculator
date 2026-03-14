@@ -40,7 +40,7 @@ export const traditionalInsurance = {
 export const shamelBenefits = [
   { category: "Doctor Consultations", discount: "Up to 40%", icon: "stethoscope" },
   { category: "Labs & Scans", discount: "Up to 80%", icon: "microscope" },
-  { category: "Pharmacy", discount: "Up to 16%", icon: "pill" },
+  { category: "Pharmacy", discount: "Co-payment model", icon: "pill" },
   { category: "Surgeries", discount: "All-inclusive pricing", icon: "hospital" },
 ];
 
@@ -65,9 +65,9 @@ export interface CalculationResult {
   individualCount: number;
   familyCount: number;
 
-  // Shamel costs (monthly per person)
-  shamelIndividualMonthly: number;
-  shamelFamilyMonthly: number;
+  // Shamel costs (yearly per person)
+  shamelIndividualYearly: number;
+  shamelFamilyYearly: number;
 
   // Total annual Shamel cost
   shamelTotalAnnual: number;
@@ -103,9 +103,10 @@ export function calculatePricing(
   const indCount = planType === "individual" ? employeeCount : planType === "family" ? 0 : individualCount;
   const famCount = planType === "family" ? employeeCount : planType === "individual" ? 0 : familyCount;
 
+  // Prices in the tier are already annual
   const shamelTotalAnnual =
-    indCount * tier.individualPrice * 12 +
-    famCount * tier.familyPrice * 12;
+    indCount * tier.individualPrice +
+    famCount * tier.familyPrice;
 
   // Traditional insurance for comparison
   const tradIndividual = planType === "family" ? 0 : (planType === "individual" ? employeeCount : individualCount);
@@ -137,8 +138,8 @@ export function calculatePricing(
     employeeCount,
     individualCount: indCount,
     familyCount: famCount,
-    shamelIndividualMonthly: tier.individualPrice,
-    shamelFamilyMonthly: tier.familyPrice,
+    shamelIndividualYearly: tier.individualPrice,
+    shamelFamilyYearly: tier.familyPrice,
     shamelTotalAnnual,
     traditionalBasicAnnual,
     traditionalStandardAnnual,
