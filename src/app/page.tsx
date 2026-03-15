@@ -88,6 +88,50 @@ export default function Home() {
       );
       setResult(calc);
     }
+
+    // Save proposal to database when generating quotation (step 3 → step 4)
+    if (currentStep === 3 && result) {
+      const discountAmount =
+        quotationData.lumpSumDiscount > 0
+          ? result.shamelTotalAnnual * (quotationData.lumpSumDiscount / 100)
+          : 0;
+      const finalTotal = result.shamelTotalAnnual - discountAmount;
+
+      // Fire-and-forget — don't block quotation generation
+      fetch("/api/proposals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_name: formData.companyName,
+          industry: formData.industry,
+          employee_count: formData.employeeCount,
+          shamel_individual_count: formData.individualCount,
+          shamel_family_count: formData.familyCount,
+          mini_individual_count: formData.miniIndividualCount,
+          mini_family_count: formData.miniFamilyCount,
+          tier_type: result.tier.type,
+          shamel_subtotal: result.shamelSubtotal,
+          mini_subtotal: result.miniSubtotal,
+          total_annual: result.shamelTotalAnnual,
+          lump_sum_discount: quotationData.lumpSumDiscount,
+          final_total: Math.round(finalTotal),
+          sales_name: quotationData.salesName,
+          sales_title: quotationData.salesTitle,
+          recipient_name: quotationData.recipientName,
+          recipient_title: quotationData.recipientTitle,
+          quotation_date: quotationData.quotationDate,
+          language: quotationData.language,
+          payment_terms: quotationData.paymentTerms,
+          offer_validity: quotationData.offerValidity === "custom"
+            ? quotationData.customValidityDate
+            : quotationData.offerValidity,
+          notes: quotationData.notes,
+        }),
+      }).catch(() => {
+        // Silently fail — proposal generation should not depend on DB save
+      });
+    }
+
     setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
   }
 
