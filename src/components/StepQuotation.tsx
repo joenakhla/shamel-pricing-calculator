@@ -185,6 +185,13 @@ function QuotationEN({
               </tbody>
             </table>
           </div>
+          {(result.miniIndividualCount > 0 || result.miniFamilyCount > 0) && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3">
+              <p className="text-xs text-amber-700">
+                <strong>Note:</strong> Shamel Mini-plan members have access to a selected subset of the above network.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Financial Offer */}
@@ -218,6 +225,26 @@ function QuotationEN({
                     <td className="px-4 py-2.5 text-right text-gray-700">{result.familyCount}</td>
                     <td className="px-4 py-2.5 text-right font-semibold text-gray-900">
                       {formatEGP(result.familyCount * result.shamelFamilyYearly)}
+                    </td>
+                  </tr>
+                )}
+                {result.miniIndividualCount > 0 && (
+                  <tr className="bg-white">
+                    <td className="px-4 py-2.5 text-gray-700">Shamel Mini Individual</td>
+                    <td className="px-4 py-2.5 text-right text-gray-700">{formatEGP(result.miniIndividualYearly)}</td>
+                    <td className="px-4 py-2.5 text-right text-gray-700">{result.miniIndividualCount}</td>
+                    <td className="px-4 py-2.5 text-right font-semibold text-gray-900">
+                      {formatEGP(result.miniIndividualCount * result.miniIndividualYearly)}
+                    </td>
+                  </tr>
+                )}
+                {result.miniFamilyCount > 0 && (
+                  <tr className="bg-gray-50">
+                    <td className="px-4 py-2.5 text-gray-700">Shamel Mini Family (up to 4 members)</td>
+                    <td className="px-4 py-2.5 text-right text-gray-700">{formatEGP(result.miniFamilyYearly)}</td>
+                    <td className="px-4 py-2.5 text-right text-gray-700">{result.miniFamilyCount}</td>
+                    <td className="px-4 py-2.5 text-right font-semibold text-gray-900">
+                      {formatEGP(result.miniFamilyCount * result.miniFamilyYearly)}
                     </td>
                   </tr>
                 )}
@@ -429,6 +456,13 @@ function QuotationAR({
               </tbody>
             </table>
           </div>
+          {(result.miniIndividualCount > 0 || result.miniFamilyCount > 0) && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3">
+              <p className="text-xs text-amber-700">
+                <strong>ملاحظة:</strong> أعضاء باقة شامل ميني يمكنهم الوصول إلى مجموعة مختارة من الشبكة المذكورة أعلاه.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Financial Offer */}
@@ -462,6 +496,26 @@ function QuotationAR({
                     <td className="px-4 py-2.5 text-left text-gray-700">{result.familyCount}</td>
                     <td className="px-4 py-2.5 text-left font-semibold text-gray-900">
                       {formatEGP(result.familyCount * result.shamelFamilyYearly)}
+                    </td>
+                  </tr>
+                )}
+                {result.miniIndividualCount > 0 && (
+                  <tr className="bg-white">
+                    <td className="px-4 py-2.5 text-gray-700">شامل ميني للأفراد</td>
+                    <td className="px-4 py-2.5 text-left text-gray-700">{formatEGP(result.miniIndividualYearly)}</td>
+                    <td className="px-4 py-2.5 text-left text-gray-700">{result.miniIndividualCount}</td>
+                    <td className="px-4 py-2.5 text-left font-semibold text-gray-900">
+                      {formatEGP(result.miniIndividualCount * result.miniIndividualYearly)}
+                    </td>
+                  </tr>
+                )}
+                {result.miniFamilyCount > 0 && (
+                  <tr className="bg-gray-50">
+                    <td className="px-4 py-2.5 text-gray-700">شامل ميني للعائلات (حتى ٤ أفراد)</td>
+                    <td className="px-4 py-2.5 text-left text-gray-700">{formatEGP(result.miniFamilyYearly)}</td>
+                    <td className="px-4 py-2.5 text-left text-gray-700">{result.miniFamilyCount}</td>
+                    <td className="px-4 py-2.5 text-left font-semibold text-gray-900">
+                      {formatEGP(result.miniFamilyCount * result.miniFamilyYearly)}
                     </td>
                   </tr>
                 )}

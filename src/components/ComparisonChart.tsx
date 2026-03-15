@@ -23,9 +23,10 @@ function formatCompact(n: number) {
 }
 
 export default function ComparisonChart({ result }: Props) {
+  const hasMini = result.miniIndividualCount > 0 || result.miniFamilyCount > 0;
   const data = [
     {
-      name: "Shamel",
+      name: hasMini ? "Shamel + Mini" : "Shamel",
       cost: result.shamelTotalAnnual,
       fill: "#0891b2",
     },

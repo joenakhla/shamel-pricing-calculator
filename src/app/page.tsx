@@ -31,6 +31,8 @@ export interface FormData {
   planType: "individual" | "family" | "mixed";
   individualCount: number;
   familyCount: number;
+  miniIndividualCount: number;
+  miniFamilyCount: number;
 }
 
 export interface QuotationData {
@@ -53,9 +55,11 @@ export default function Home() {
     companyName: "",
     industry: "",
     employeeCount: 0,
-    planType: "individual",
+    planType: "mixed",
     individualCount: 0,
     familyCount: 0,
+    miniIndividualCount: 0,
+    miniFamilyCount: 0,
   });
   const [quotationData, setQuotationData] = useState<QuotationData>({
     salesName: "",
@@ -78,7 +82,9 @@ export default function Home() {
         formData.employeeCount,
         formData.planType,
         formData.individualCount,
-        formData.familyCount
+        formData.familyCount,
+        formData.miniIndividualCount,
+        formData.miniFamilyCount
       );
       setResult(calc);
     }
@@ -95,9 +101,11 @@ export default function Home() {
       companyName: "",
       industry: "",
       employeeCount: 0,
-      planType: "individual",
+      planType: "mixed",
       individualCount: 0,
       familyCount: 0,
+      miniIndividualCount: 0,
+      miniFamilyCount: 0,
     });
     setQuotationData({
       salesName: "",

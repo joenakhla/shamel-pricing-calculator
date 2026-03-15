@@ -11,6 +11,9 @@ export interface PricingTier {
 export const ORIGINAL_INDIVIDUAL_PRICE = 800;
 export const ORIGINAL_FAMILY_PRICE = 1600;
 
+export const MINI_ORIGINAL_INDIVIDUAL_PRICE = 120;
+export const MINI_ORIGINAL_FAMILY_PRICE = 220;
+
 export const pricingTiers: PricingTier[] = [
   { type: "SoHo", minEmployees: 5, maxEmployees: 10, individualPrice: 650, familyPrice: 1300, discount: 18.75, label: "5 - 10" },
   { type: "SoHo", minEmployees: 11, maxEmployees: 20, individualPrice: 625, familyPrice: 1250, discount: 21.88, label: "11 - 20" },
@@ -21,6 +24,18 @@ export const pricingTiers: PricingTier[] = [
   { type: "Large Enterprise", minEmployees: 501, maxEmployees: 2000, individualPrice: 500, familyPrice: 1000, discount: 37.5, label: "500 - 2,000" },
   { type: "Large Enterprise", minEmployees: 2001, maxEmployees: 5000, individualPrice: 400, familyPrice: 800, discount: 50, label: "2,001 - 5,000" },
   { type: "Exceptional Enterprise", minEmployees: 5001, maxEmployees: 999999, individualPrice: 350, familyPrice: 700, discount: 56.25, label: "5,001+" },
+];
+
+export const miniPricingTiers: PricingTier[] = [
+  { type: "SoHo", minEmployees: 5, maxEmployees: 10, individualPrice: 120, familyPrice: 220, discount: 0, label: "5 - 10" },
+  { type: "SoHo", minEmployees: 11, maxEmployees: 20, individualPrice: 108, familyPrice: 198, discount: 10, label: "11 - 20" },
+  { type: "SME", minEmployees: 21, maxEmployees: 50, individualPrice: 102, familyPrice: 187, discount: 15, label: "21 - 50" },
+  { type: "SME", minEmployees: 51, maxEmployees: 100, individualPrice: 100, familyPrice: 183, discount: 17, label: "51 - 100" },
+  { type: "Mid-Large", minEmployees: 101, maxEmployees: 250, individualPrice: 95, familyPrice: 174, discount: 21, label: "101 - 250" },
+  { type: "Mid-Large", minEmployees: 251, maxEmployees: 500, individualPrice: 92, familyPrice: 167, discount: 24, label: "251 - 500" },
+  { type: "Large Enterprise", minEmployees: 501, maxEmployees: 2000, individualPrice: 88, familyPrice: 161, discount: 27, label: "500 - 2,000" },
+  { type: "Large Enterprise", minEmployees: 2001, maxEmployees: 5000, individualPrice: 84, familyPrice: 154, discount: 30, label: "2,001 - 5,000" },
+  { type: "Exceptional Enterprise", minEmployees: 5001, maxEmployees: 999999, individualPrice: 81, familyPrice: 147, discount: 33, label: "5,001+" },
 ];
 
 // Traditional insurance benchmarks for Egypt (annual per employee)
@@ -58,18 +73,36 @@ export function getTier(employeeCount: number): PricingTier | null {
   ) || null;
 }
 
+export function getMiniTier(employeeCount: number): PricingTier | null {
+  if (employeeCount < 5) return null;
+  return miniPricingTiers.find(
+    (t) => employeeCount >= t.minEmployees && employeeCount <= t.maxEmployees
+  ) || null;
+}
+
 export interface CalculationResult {
   tier: PricingTier;
+  miniTier: PricingTier;
   planType: "individual" | "family" | "mixed";
   employeeCount: number;
   individualCount: number;
   familyCount: number;
+  miniIndividualCount: number;
+  miniFamilyCount: number;
 
   // Shamel costs (yearly per person)
   shamelIndividualYearly: number;
   shamelFamilyYearly: number;
 
-  // Total annual Shamel cost
+  // Mini costs (yearly per person)
+  miniIndividualYearly: number;
+  miniFamilyYearly: number;
+
+  // Subtotals per product
+  shamelSubtotal: number;
+  miniSubtotal: number;
+
+  // Total annual combined cost (Shamel + Mini)
   shamelTotalAnnual: number;
 
   // Traditional insurance costs (annual)
@@ -87,42 +120,56 @@ export interface CalculationResult {
   roiVsStandard: number;
   roiVsPremium: number;
 
-  // Discount from original price
+  // Discount percentages
   discountPercent: number;
+  shamelDiscountPercent: number;
+  miniDiscountPercent: number;
 }
 
 export function calculatePricing(
   employeeCount: number,
   planType: "individual" | "family" | "mixed",
   individualCount: number,
-  familyCount: number
+  familyCount: number,
+  miniIndividualCount: number = 0,
+  miniFamilyCount: number = 0
 ): CalculationResult | null {
   const tier = getTier(employeeCount);
-  if (!tier) return null;
+  const miniTier = getMiniTier(employeeCount);
+  if (!tier || !miniTier) return null;
 
-  const indCount = planType === "individual" ? employeeCount : planType === "family" ? 0 : individualCount;
-  const famCount = planType === "family" ? employeeCount : planType === "individual" ? 0 : familyCount;
+  // Use explicit counts directly (the UI now manages allocation)
+  const indCount = individualCount;
+  const famCount = familyCount;
 
-  // Prices in the tier are already annual
-  const shamelTotalAnnual =
+  // Shamel subtotal
+  const shamelSubtotal =
     indCount * tier.individualPrice +
     famCount * tier.familyPrice;
 
-  // Traditional insurance for comparison
-  const tradIndividual = planType === "family" ? 0 : (planType === "individual" ? employeeCount : individualCount);
-  const tradFamily = planType === "individual" ? 0 : (planType === "family" ? employeeCount : familyCount);
+  // Mini subtotal
+  const miniSubtotal =
+    miniIndividualCount * miniTier.individualPrice +
+    miniFamilyCount * miniTier.familyPrice;
+
+  // Combined total
+  const shamelTotalAnnual = shamelSubtotal + miniSubtotal;
+
+  // Traditional insurance comparison — based on subscription TYPE (individual vs family)
+  const totalIndividualType = indCount + miniIndividualCount;
+  const totalFamilyType = famCount + miniFamilyCount;
 
   const traditionalBasicAnnual =
-    tradIndividual * traditionalInsurance.individual.basic +
-    tradFamily * traditionalInsurance.family.basic;
+    totalIndividualType * traditionalInsurance.individual.basic +
+    totalFamilyType * traditionalInsurance.family.basic;
 
   const traditionalStandardAnnual =
-    tradIndividual * traditionalInsurance.individual.standard +
-    tradFamily * traditionalInsurance.family.standard;
+    totalIndividualType * traditionalInsurance.individual.standard +
+    totalFamilyType * traditionalInsurance.family.standard;
 
   const traditionalPremiumAnnual =
-    tradIndividual * traditionalInsurance.individual.premium +
-    tradFamily * traditionalInsurance.family.premium;
+    totalIndividualType * traditionalInsurance.individual.premium +
+    totalFamilyType * traditionalInsurance.family.premium;
 
   const savingsVsBasic = traditionalBasicAnnual - shamelTotalAnnual;
   const savingsVsStandard = traditionalStandardAnnual - shamelTotalAnnual;
@@ -132,14 +179,29 @@ export function calculatePricing(
   const roiVsStandard = traditionalStandardAnnual > 0 ? ((savingsVsStandard / traditionalStandardAnnual) * 100) : 0;
   const roiVsPremium = traditionalPremiumAnnual > 0 ? ((savingsVsPremium / traditionalPremiumAnnual) * 100) : 0;
 
+  // Discount percentages
+  const shamelDiscountPercent = tier.discount;
+  const miniDiscountPercent = miniTier.discount;
+  const discountPercent = shamelTotalAnnual > 0
+    ? (shamelSubtotal / shamelTotalAnnual * shamelDiscountPercent +
+       miniSubtotal / shamelTotalAnnual * miniDiscountPercent)
+    : 0;
+
   return {
     tier,
+    miniTier,
     planType,
     employeeCount,
     individualCount: indCount,
     familyCount: famCount,
+    miniIndividualCount,
+    miniFamilyCount,
     shamelIndividualYearly: tier.individualPrice,
     shamelFamilyYearly: tier.familyPrice,
+    miniIndividualYearly: miniTier.individualPrice,
+    miniFamilyYearly: miniTier.familyPrice,
+    shamelSubtotal,
+    miniSubtotal,
     shamelTotalAnnual,
     traditionalBasicAnnual,
     traditionalStandardAnnual,
@@ -150,6 +212,8 @@ export function calculatePricing(
     roiVsBasic,
     roiVsStandard,
     roiVsPremium,
-    discountPercent: tier.discount,
+    discountPercent,
+    shamelDiscountPercent,
+    miniDiscountPercent,
   };
 }

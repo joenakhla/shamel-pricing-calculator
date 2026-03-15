@@ -13,6 +13,7 @@ import {
   Sparkles,
   UserRound,
   UsersRound,
+  Zap,
 } from "lucide-react";
 import ComparisonChart from "./ComparisonChart";
 import SavingsChart from "./SavingsChart";
@@ -31,6 +32,15 @@ function formatEGP(n: number) {
 
 export default function StepResults({ result, companyName, onBack, onRestart, onCreateQuotation }: Props) {
   const monthlyTotal = result.shamelTotalAnnual / 12;
+  const hasMini = result.miniIndividualCount > 0 || result.miniFamilyCount > 0;
+  const hasShamel = result.individualCount > 0 || result.familyCount > 0;
+
+  // Build allocation summary
+  const parts: string[] = [];
+  if (result.individualCount > 0) parts.push(`${result.individualCount} Shamel Ind.`);
+  if (result.familyCount > 0) parts.push(`${result.familyCount} Shamel Fam.`);
+  if (result.miniIndividualCount > 0) parts.push(`${result.miniIndividualCount} Mini Ind.`);
+  if (result.miniFamilyCount > 0) parts.push(`${result.miniFamilyCount} Mini Fam.`);
 
   return (
     <div className="space-y-8">
@@ -41,10 +51,7 @@ export default function StepResults({ result, companyName, onBack, onRestart, on
             <p className="text-cyan-100 text-sm">Pricing Report for</p>
             <h2 className="text-3xl font-bold">{companyName}</h2>
             <p className="text-cyan-100 mt-1">
-              {result.employeeCount} employees &middot; {result.tier.type} tier &middot;{" "}
-              {result.planType === "mixed"
-                ? `${result.individualCount} individual + ${result.familyCount} family`
-                : result.planType + " plan"}
+              {result.employeeCount} employees &middot; {result.tier.type} tier &middot; {parts.join(" + ")}
             </p>
           </div>
           <div className="text-right">
@@ -57,15 +64,15 @@ export default function StepResults({ result, companyName, onBack, onRestart, on
 
       {/* Per-Plan Pricing Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Individual Price */}
-        {(result.planType === "individual" || result.planType === "mixed") && (
+        {/* Shamel Individual */}
+        {result.individualCount > 0 && (
           <div className="bg-white rounded-2xl border border-cyan-100 shadow-md p-6">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-9 h-9 rounded-lg bg-cyan-50 flex items-center justify-center">
                 <UserRound size={18} className="text-cyan-600" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900">Individual Plan</p>
+                <p className="text-sm font-semibold text-gray-900">Shamel Individual</p>
                 <p className="text-xs text-gray-400">{result.individualCount} employee{result.individualCount !== 1 ? "s" : ""}</p>
               </div>
             </div>
@@ -74,16 +81,16 @@ export default function StepResults({ result, companyName, onBack, onRestart, on
           </div>
         )}
 
-        {/* Family Price */}
-        {(result.planType === "family" || result.planType === "mixed") && (
+        {/* Shamel Family */}
+        {result.familyCount > 0 && (
           <div className="bg-white rounded-2xl border border-teal-100 shadow-md p-6">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center">
                 <UsersRound size={18} className="text-teal-600" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900">Family Plan</p>
-                <p className="text-xs text-gray-400">{result.familyCount} employee{result.familyCount !== 1 ? "s" : ""} (up to 4 members each)</p>
+                <p className="text-sm font-semibold text-gray-900">Shamel Family</p>
+                <p className="text-xs text-gray-400">{result.familyCount} employee{result.familyCount !== 1 ? "s" : ""} (up to 4 each)</p>
               </div>
             </div>
             <p className="text-3xl font-bold text-teal-700">{formatEGP(result.shamelFamilyYearly)} <span className="text-base font-medium text-gray-400">EGP/yr</span></p>
@@ -91,7 +98,41 @@ export default function StepResults({ result, companyName, onBack, onRestart, on
           </div>
         )}
 
-        {/* Blended / Total */}
+        {/* Mini Individual */}
+        {result.miniIndividualCount > 0 && (
+          <div className="bg-white rounded-2xl border border-amber-100 shadow-md p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
+                <Zap size={18} className="text-amber-600" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Mini Individual</p>
+                <p className="text-xs text-gray-400">{result.miniIndividualCount} employee{result.miniIndividualCount !== 1 ? "s" : ""}</p>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-amber-700">{formatEGP(result.miniIndividualYearly)} <span className="text-base font-medium text-gray-400">EGP/yr</span></p>
+            <p className="text-sm text-gray-500 mt-1">{formatEGP(result.miniIndividualYearly / 12)} EGP/mo per person</p>
+          </div>
+        )}
+
+        {/* Mini Family */}
+        {result.miniFamilyCount > 0 && (
+          <div className="bg-white rounded-2xl border border-orange-100 shadow-md p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center">
+                <Zap size={18} className="text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Mini Family</p>
+                <p className="text-xs text-gray-400">{result.miniFamilyCount} employee{result.miniFamilyCount !== 1 ? "s" : ""} (up to 4 each)</p>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-orange-700">{formatEGP(result.miniFamilyYearly)} <span className="text-base font-medium text-gray-400">EGP/yr</span></p>
+            <p className="text-sm text-gray-500 mt-1">{formatEGP(result.miniFamilyYearly / 12)} EGP/mo per person</p>
+          </div>
+        )}
+
+        {/* Blended Average */}
         <div className="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-2xl border border-cyan-200 shadow-md p-6">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-9 h-9 rounded-lg bg-cyan-100 flex items-center justify-center">
@@ -107,6 +148,26 @@ export default function StepResults({ result, companyName, onBack, onRestart, on
         </div>
       </div>
 
+      {/* Product Subtotals (shown when both Shamel and Mini are used) */}
+      {hasShamel && hasMini && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white rounded-xl border border-cyan-100 p-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
+              <span className="text-sm font-medium text-gray-700">Shamel Subtotal</span>
+            </div>
+            <span className="text-sm font-bold text-cyan-700">{formatEGP(result.shamelSubtotal)} EGP</span>
+          </div>
+          <div className="bg-white rounded-xl border border-amber-100 p-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+              <span className="text-sm font-medium text-gray-700">Mini Subtotal</span>
+            </div>
+            <span className="text-sm font-bold text-amber-700">{formatEGP(result.miniSubtotal)} EGP</span>
+          </div>
+        </div>
+      )}
+
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard
@@ -120,6 +181,7 @@ export default function StepResults({ result, companyName, onBack, onRestart, on
           label="Enterprise Discount"
           value={`${result.discountPercent.toFixed(1)}%`}
           color="green"
+          subtitle={hasShamel && hasMini ? "weighted avg" : undefined}
         />
         <MetricCard
           icon={<PiggyBank size={20} />}
@@ -141,7 +203,7 @@ export default function StepResults({ result, companyName, onBack, onRestart, on
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
           <h3 className="font-bold text-gray-900 mb-1">Annual TCO Comparison</h3>
-          <p className="text-sm text-gray-500 mb-4">Shamel vs Traditional Insurance</p>
+          <p className="text-sm text-gray-500 mb-4">{hasMini ? "Shamel + Mini" : "Shamel"} vs Traditional Insurance</p>
           <ComparisonChart result={result} />
         </div>
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -162,7 +224,7 @@ export default function StepResults({ result, companyName, onBack, onRestart, on
             <thead>
               <tr className="border-b border-gray-200">
                 <th className="text-left py-3 text-gray-500 font-medium">Category</th>
-                <th className="text-right py-3 text-gray-500 font-medium">Shamel</th>
+                <th className="text-right py-3 text-gray-500 font-medium">{hasMini ? "Shamel + Mini" : "Shamel"}</th>
                 <th className="text-right py-3 text-gray-500 font-medium">Basic Insurance</th>
                 <th className="text-right py-3 text-gray-500 font-medium">Standard Insurance</th>
                 <th className="text-right py-3 text-gray-500 font-medium">Premium Insurance</th>

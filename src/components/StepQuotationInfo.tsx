@@ -291,7 +291,7 @@ export default function StepQuotationInfo({
             </div>
             {result.individualCount > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-500">Individual plans</span>
+                <span className="text-gray-500">Shamel Individual</span>
                 <span className="font-medium text-gray-900">
                   {result.individualCount} x {formatEGP(result.shamelIndividualYearly)} EGP
                 </span>
@@ -299,9 +299,25 @@ export default function StepQuotationInfo({
             )}
             {result.familyCount > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-500">Family plans</span>
+                <span className="text-gray-500">Shamel Family</span>
                 <span className="font-medium text-gray-900">
                   {result.familyCount} x {formatEGP(result.shamelFamilyYearly)} EGP
+                </span>
+              </div>
+            )}
+            {result.miniIndividualCount > 0 && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">Mini Individual</span>
+                <span className="font-medium text-gray-900">
+                  {result.miniIndividualCount} x {formatEGP(result.miniIndividualYearly)} EGP
+                </span>
+              </div>
+            )}
+            {result.miniFamilyCount > 0 && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">Mini Family</span>
+                <span className="font-medium text-gray-900">
+                  {result.miniFamilyCount} x {formatEGP(result.miniFamilyYearly)} EGP
                 </span>
               </div>
             )}

@@ -85,6 +85,12 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+/* Print page setup — suppress browser header/footer (URL, date/time) */
+@page {
+  size: A4;
+  margin: 15mm 15mm 20mm 15mm;
+}
+
 /* Print styles for quotation */
 @media print {
   body {
