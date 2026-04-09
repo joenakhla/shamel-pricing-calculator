@@ -84,8 +84,18 @@ function QuotationEN({
   quotationData: QuotationData;
   result: CalculationResult;
 }) {
-  const discountAmount = result.shamelTotalAnnual * (quotationData.lumpSumDiscount / 100);
-  const finalTotal = result.shamelTotalAnnual - discountAmount;
+  // Effective prices (custom override or calculated)
+  const effShamelInd = quotationData.customShamelIndividualPrice ?? result.shamelIndividualYearly;
+  const effShamelFam = quotationData.customShamelFamilyPrice ?? result.shamelFamilyYearly;
+  const effMiniInd = quotationData.customMiniIndividualPrice ?? result.miniIndividualYearly;
+  const effMiniFam = quotationData.customMiniFamilyPrice ?? result.miniFamilyYearly;
+  const effTotal =
+    result.individualCount * effShamelInd +
+    result.familyCount * effShamelFam +
+    result.miniIndividualCount * effMiniInd +
+    result.miniFamilyCount * effMiniFam;
+  const discountAmount = effTotal * (quotationData.lumpSumDiscount / 100);
+  const finalTotal = effTotal - discountAmount;
 
   return (
     <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden print:shadow-none print:border-none">
@@ -211,40 +221,40 @@ function QuotationEN({
                 {result.individualCount > 0 && (
                   <tr className="bg-white">
                     <td className="px-4 py-2.5 text-gray-700">Shamel Individual</td>
-                    <td className="px-4 py-2.5 text-right text-gray-700">{formatEGP(result.shamelIndividualYearly)}</td>
+                    <td className="px-4 py-2.5 text-right text-gray-700">{formatEGP(effShamelInd)}</td>
                     <td className="px-4 py-2.5 text-right text-gray-700">{result.individualCount}</td>
                     <td className="px-4 py-2.5 text-right font-semibold text-gray-900">
-                      {formatEGP(result.individualCount * result.shamelIndividualYearly)}
+                      {formatEGP(result.individualCount * effShamelInd)}
                     </td>
                   </tr>
                 )}
                 {result.familyCount > 0 && (
                   <tr className="bg-gray-50">
                     <td className="px-4 py-2.5 text-gray-700">Shamel Family (up to 4 members)</td>
-                    <td className="px-4 py-2.5 text-right text-gray-700">{formatEGP(result.shamelFamilyYearly)}</td>
+                    <td className="px-4 py-2.5 text-right text-gray-700">{formatEGP(effShamelFam)}</td>
                     <td className="px-4 py-2.5 text-right text-gray-700">{result.familyCount}</td>
                     <td className="px-4 py-2.5 text-right font-semibold text-gray-900">
-                      {formatEGP(result.familyCount * result.shamelFamilyYearly)}
+                      {formatEGP(result.familyCount * effShamelFam)}
                     </td>
                   </tr>
                 )}
                 {result.miniIndividualCount > 0 && (
                   <tr className="bg-white">
                     <td className="px-4 py-2.5 text-gray-700">Shamel Mini Individual</td>
-                    <td className="px-4 py-2.5 text-right text-gray-700">{formatEGP(result.miniIndividualYearly)}</td>
+                    <td className="px-4 py-2.5 text-right text-gray-700">{formatEGP(effMiniInd)}</td>
                     <td className="px-4 py-2.5 text-right text-gray-700">{result.miniIndividualCount}</td>
                     <td className="px-4 py-2.5 text-right font-semibold text-gray-900">
-                      {formatEGP(result.miniIndividualCount * result.miniIndividualYearly)}
+                      {formatEGP(result.miniIndividualCount * effMiniInd)}
                     </td>
                   </tr>
                 )}
                 {result.miniFamilyCount > 0 && (
                   <tr className="bg-gray-50">
                     <td className="px-4 py-2.5 text-gray-700">Shamel Mini Family (up to 4 members)</td>
-                    <td className="px-4 py-2.5 text-right text-gray-700">{formatEGP(result.miniFamilyYearly)}</td>
+                    <td className="px-4 py-2.5 text-right text-gray-700">{formatEGP(effMiniFam)}</td>
                     <td className="px-4 py-2.5 text-right text-gray-700">{result.miniFamilyCount}</td>
                     <td className="px-4 py-2.5 text-right font-semibold text-gray-900">
-                      {formatEGP(result.miniFamilyCount * result.miniFamilyYearly)}
+                      {formatEGP(result.miniFamilyCount * effMiniFam)}
                     </td>
                   </tr>
                 )}
@@ -252,7 +262,7 @@ function QuotationEN({
               <tfoot>
                 <tr className="border-t border-gray-200">
                   <td colSpan={3} className="px-4 py-2.5 text-right font-semibold text-gray-700">Subtotal</td>
-                  <td className="px-4 py-2.5 text-right font-semibold text-gray-900">{formatEGP(result.shamelTotalAnnual)}</td>
+                  <td className="px-4 py-2.5 text-right font-semibold text-gray-900">{formatEGP(effTotal)}</td>
                 </tr>
                 {quotationData.lumpSumDiscount > 0 && (
                   <tr className="border-t border-green-200 bg-green-50">
@@ -356,8 +366,18 @@ function QuotationAR({
   quotationData: QuotationData;
   result: CalculationResult;
 }) {
-  const discountAmount = result.shamelTotalAnnual * (quotationData.lumpSumDiscount / 100);
-  const finalTotal = result.shamelTotalAnnual - discountAmount;
+  // Effective prices (custom override or calculated)
+  const effShamelInd = quotationData.customShamelIndividualPrice ?? result.shamelIndividualYearly;
+  const effShamelFam = quotationData.customShamelFamilyPrice ?? result.shamelFamilyYearly;
+  const effMiniInd = quotationData.customMiniIndividualPrice ?? result.miniIndividualYearly;
+  const effMiniFam = quotationData.customMiniFamilyPrice ?? result.miniFamilyYearly;
+  const effTotal =
+    result.individualCount * effShamelInd +
+    result.familyCount * effShamelFam +
+    result.miniIndividualCount * effMiniInd +
+    result.miniFamilyCount * effMiniFam;
+  const discountAmount = effTotal * (quotationData.lumpSumDiscount / 100);
+  const finalTotal = effTotal - discountAmount;
 
   return (
     <div dir="rtl" className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden print:shadow-none print:border-none font-sans">
@@ -482,40 +502,40 @@ function QuotationAR({
                 {result.individualCount > 0 && (
                   <tr className="bg-white">
                     <td className="px-4 py-2.5 text-gray-700">شامل للأفراد</td>
-                    <td className="px-4 py-2.5 text-left text-gray-700">{formatEGP(result.shamelIndividualYearly)}</td>
+                    <td className="px-4 py-2.5 text-left text-gray-700">{formatEGP(effShamelInd)}</td>
                     <td className="px-4 py-2.5 text-left text-gray-700">{result.individualCount}</td>
                     <td className="px-4 py-2.5 text-left font-semibold text-gray-900">
-                      {formatEGP(result.individualCount * result.shamelIndividualYearly)}
+                      {formatEGP(result.individualCount * effShamelInd)}
                     </td>
                   </tr>
                 )}
                 {result.familyCount > 0 && (
                   <tr className="bg-gray-50">
                     <td className="px-4 py-2.5 text-gray-700">شامل للعائلات (حتى ٤ أفراد)</td>
-                    <td className="px-4 py-2.5 text-left text-gray-700">{formatEGP(result.shamelFamilyYearly)}</td>
+                    <td className="px-4 py-2.5 text-left text-gray-700">{formatEGP(effShamelFam)}</td>
                     <td className="px-4 py-2.5 text-left text-gray-700">{result.familyCount}</td>
                     <td className="px-4 py-2.5 text-left font-semibold text-gray-900">
-                      {formatEGP(result.familyCount * result.shamelFamilyYearly)}
+                      {formatEGP(result.familyCount * effShamelFam)}
                     </td>
                   </tr>
                 )}
                 {result.miniIndividualCount > 0 && (
                   <tr className="bg-white">
                     <td className="px-4 py-2.5 text-gray-700">شامل ميني للأفراد</td>
-                    <td className="px-4 py-2.5 text-left text-gray-700">{formatEGP(result.miniIndividualYearly)}</td>
+                    <td className="px-4 py-2.5 text-left text-gray-700">{formatEGP(effMiniInd)}</td>
                     <td className="px-4 py-2.5 text-left text-gray-700">{result.miniIndividualCount}</td>
                     <td className="px-4 py-2.5 text-left font-semibold text-gray-900">
-                      {formatEGP(result.miniIndividualCount * result.miniIndividualYearly)}
+                      {formatEGP(result.miniIndividualCount * effMiniInd)}
                     </td>
                   </tr>
                 )}
                 {result.miniFamilyCount > 0 && (
                   <tr className="bg-gray-50">
                     <td className="px-4 py-2.5 text-gray-700">شامل ميني للعائلات (حتى ٤ أفراد)</td>
-                    <td className="px-4 py-2.5 text-left text-gray-700">{formatEGP(result.miniFamilyYearly)}</td>
+                    <td className="px-4 py-2.5 text-left text-gray-700">{formatEGP(effMiniFam)}</td>
                     <td className="px-4 py-2.5 text-left text-gray-700">{result.miniFamilyCount}</td>
                     <td className="px-4 py-2.5 text-left font-semibold text-gray-900">
-                      {formatEGP(result.miniFamilyCount * result.miniFamilyYearly)}
+                      {formatEGP(result.miniFamilyCount * effMiniFam)}
                     </td>
                   </tr>
                 )}
@@ -523,7 +543,7 @@ function QuotationAR({
               <tfoot>
                 <tr className="border-t border-gray-200">
                   <td colSpan={3} className="px-4 py-2.5 text-left font-semibold text-gray-700">المجموع الفرعي</td>
-                  <td className="px-4 py-2.5 text-left font-semibold text-gray-900">{formatEGP(result.shamelTotalAnnual)}</td>
+                  <td className="px-4 py-2.5 text-left font-semibold text-gray-900">{formatEGP(effTotal)}</td>
                 </tr>
                 {quotationData.lumpSumDiscount > 0 && (
                   <tr className="border-t border-green-200 bg-green-50">

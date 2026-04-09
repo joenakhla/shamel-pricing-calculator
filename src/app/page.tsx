@@ -47,6 +47,11 @@ export interface QuotationData {
   customValidityDate: string;
   lumpSumDiscount: number;
   notes: string;
+  // Custom price overrides (null = use calculated price)
+  customShamelIndividualPrice: number | null;
+  customShamelFamilyPrice: number | null;
+  customMiniIndividualPrice: number | null;
+  customMiniFamilyPrice: number | null;
 }
 
 export default function Home() {
@@ -73,6 +78,10 @@ export default function Home() {
     customValidityDate: "",
     lumpSumDiscount: 0,
     notes: "",
+    customShamelIndividualPrice: null,
+    customShamelFamilyPrice: null,
+    customMiniIndividualPrice: null,
+    customMiniFamilyPrice: null,
   });
   const [result, setResult] = useState<CalculationResult | null>(null);
 
@@ -91,11 +100,19 @@ export default function Home() {
 
     // Save proposal to database when generating quotation (step 3 → step 4)
     if (currentStep === 3 && result) {
+      // Compute effective totals using custom prices if set
+      const effShamelInd = quotationData.customShamelIndividualPrice ?? result.shamelIndividualYearly;
+      const effShamelFam = quotationData.customShamelFamilyPrice ?? result.shamelFamilyYearly;
+      const effMiniInd = quotationData.customMiniIndividualPrice ?? result.miniIndividualYearly;
+      const effMiniFam = quotationData.customMiniFamilyPrice ?? result.miniFamilyYearly;
+      const effShamelSubtotal = result.individualCount * effShamelInd + result.familyCount * effShamelFam;
+      const effMiniSubtotal = result.miniIndividualCount * effMiniInd + result.miniFamilyCount * effMiniFam;
+      const effTotal = effShamelSubtotal + effMiniSubtotal;
       const discountAmount =
         quotationData.lumpSumDiscount > 0
-          ? result.shamelTotalAnnual * (quotationData.lumpSumDiscount / 100)
+          ? effTotal * (quotationData.lumpSumDiscount / 100)
           : 0;
-      const finalTotal = result.shamelTotalAnnual - discountAmount;
+      const finalTotal = effTotal - discountAmount;
 
       // Fire-and-forget — don't block quotation generation
       fetch("/api/proposals", {
@@ -110,9 +127,9 @@ export default function Home() {
           mini_individual_count: formData.miniIndividualCount,
           mini_family_count: formData.miniFamilyCount,
           tier_type: result.tier.type,
-          shamel_subtotal: result.shamelSubtotal,
-          mini_subtotal: result.miniSubtotal,
-          total_annual: result.shamelTotalAnnual,
+          shamel_subtotal: effShamelSubtotal,
+          mini_subtotal: effMiniSubtotal,
+          total_annual: effTotal,
           lump_sum_discount: quotationData.lumpSumDiscount,
           final_total: Math.round(finalTotal),
           sales_name: quotationData.salesName,
@@ -163,6 +180,10 @@ export default function Home() {
       customValidityDate: "",
       lumpSumDiscount: 0,
       notes: "",
+      customShamelIndividualPrice: null,
+      customShamelFamilyPrice: null,
+      customMiniIndividualPrice: null,
+      customMiniFamilyPrice: null,
     });
     setResult(null);
   }

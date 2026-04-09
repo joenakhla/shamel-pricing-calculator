@@ -13,6 +13,8 @@ import {
   BadgePercent,
   StickyNote,
   Clock,
+  PencilLine,
+  RotateCcw,
 } from "lucide-react";
 
 interface Props {
@@ -42,11 +44,26 @@ export default function StepQuotationInfo({
     quotationData.quotationDate !== "" &&
     (quotationData.offerValidity !== "custom" || quotationData.customValidityDate !== "");
 
+  // Effective prices (custom override or calculated)
+  const effShamelInd = quotationData.customShamelIndividualPrice ?? result.shamelIndividualYearly;
+  const effShamelFam = quotationData.customShamelFamilyPrice ?? result.shamelFamilyYearly;
+  const effMiniInd = quotationData.customMiniIndividualPrice ?? result.miniIndividualYearly;
+  const effMiniFam = quotationData.customMiniFamilyPrice ?? result.miniFamilyYearly;
+  const effShamelSubtotal = result.individualCount * effShamelInd + result.familyCount * effShamelFam;
+  const effMiniSubtotal = result.miniIndividualCount * effMiniInd + result.miniFamilyCount * effMiniFam;
+  const effTotal = effShamelSubtotal + effMiniSubtotal;
+
+  const hasCustomPrices =
+    quotationData.customShamelIndividualPrice !== null ||
+    quotationData.customShamelFamilyPrice !== null ||
+    quotationData.customMiniIndividualPrice !== null ||
+    quotationData.customMiniFamilyPrice !== null;
+
   const discountAmount =
     quotationData.lumpSumDiscount > 0
-      ? result.shamelTotalAnnual * (quotationData.lumpSumDiscount / 100)
+      ? effTotal * (quotationData.lumpSumDiscount / 100)
       : 0;
-  const finalTotal = result.shamelTotalAnnual - discountAmount;
+  const finalTotal = effTotal - discountAmount;
 
   return (
     <div className="grid md:grid-cols-3 gap-8">
@@ -204,6 +221,146 @@ export default function StepQuotationInfo({
             </div>
           </div>
 
+          {/* Custom Pricing Override */}
+          <div>
+            <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <PencilLine size={16} className="text-cyan-600" />
+                Custom Pricing (Optional)
+              </span>
+              {hasCustomPrices && (
+                <button
+                  onClick={() =>
+                    setQuotationData({
+                      ...quotationData,
+                      customShamelIndividualPrice: null,
+                      customShamelFamilyPrice: null,
+                      customMiniIndividualPrice: null,
+                      customMiniFamilyPrice: null,
+                    })
+                  }
+                  className="text-xs text-gray-400 hover:text-red-500 flex items-center gap-1 font-medium transition-colors cursor-pointer"
+                >
+                  <RotateCcw size={12} />
+                  Reset to calculated
+                </button>
+              )}
+            </h3>
+            <p className="text-xs text-gray-400 mb-4">
+              Override the calculated unit prices if you negotiated a custom rate with the client.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {result.individualCount > 0 && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                    Shamel Individual <span className="text-gray-400">(calculated: {formatEGP(result.shamelIndividualYearly)} EGP)</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      value={quotationData.customShamelIndividualPrice ?? ""}
+                      onChange={(e) =>
+                        setQuotationData({
+                          ...quotationData,
+                          customShamelIndividualPrice: e.target.value === "" ? null : Math.round(parseFloat(e.target.value) || 0),
+                        })
+                      }
+                      placeholder={String(result.shamelIndividualYearly)}
+                      className={`w-full px-4 py-3 pr-14 rounded-xl border ${
+                        quotationData.customShamelIndividualPrice !== null
+                          ? "border-cyan-400 bg-cyan-50/30"
+                          : "border-gray-200"
+                      } focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition-all text-gray-900 placeholder-gray-400`}
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">EGP/yr</span>
+                  </div>
+                </div>
+              )}
+              {result.familyCount > 0 && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                    Shamel Family <span className="text-gray-400">(calculated: {formatEGP(result.shamelFamilyYearly)} EGP)</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      value={quotationData.customShamelFamilyPrice ?? ""}
+                      onChange={(e) =>
+                        setQuotationData({
+                          ...quotationData,
+                          customShamelFamilyPrice: e.target.value === "" ? null : Math.round(parseFloat(e.target.value) || 0),
+                        })
+                      }
+                      placeholder={String(result.shamelFamilyYearly)}
+                      className={`w-full px-4 py-3 pr-14 rounded-xl border ${
+                        quotationData.customShamelFamilyPrice !== null
+                          ? "border-cyan-400 bg-cyan-50/30"
+                          : "border-gray-200"
+                      } focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition-all text-gray-900 placeholder-gray-400`}
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">EGP/yr</span>
+                  </div>
+                </div>
+              )}
+              {result.miniIndividualCount > 0 && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                    Mini Individual <span className="text-gray-400">(calculated: {formatEGP(result.miniIndividualYearly)} EGP)</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      value={quotationData.customMiniIndividualPrice ?? ""}
+                      onChange={(e) =>
+                        setQuotationData({
+                          ...quotationData,
+                          customMiniIndividualPrice: e.target.value === "" ? null : Math.round(parseFloat(e.target.value) || 0),
+                        })
+                      }
+                      placeholder={String(result.miniIndividualYearly)}
+                      className={`w-full px-4 py-3 pr-14 rounded-xl border ${
+                        quotationData.customMiniIndividualPrice !== null
+                          ? "border-cyan-400 bg-cyan-50/30"
+                          : "border-gray-200"
+                      } focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition-all text-gray-900 placeholder-gray-400`}
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">EGP/yr</span>
+                  </div>
+                </div>
+              )}
+              {result.miniFamilyCount > 0 && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                    Mini Family <span className="text-gray-400">(calculated: {formatEGP(result.miniFamilyYearly)} EGP)</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      value={quotationData.customMiniFamilyPrice ?? ""}
+                      onChange={(e) =>
+                        setQuotationData({
+                          ...quotationData,
+                          customMiniFamilyPrice: e.target.value === "" ? null : Math.round(parseFloat(e.target.value) || 0),
+                        })
+                      }
+                      placeholder={String(result.miniFamilyYearly)}
+                      className={`w-full px-4 py-3 pr-14 rounded-xl border ${
+                        quotationData.customMiniFamilyPrice !== null
+                          ? "border-cyan-400 bg-cyan-50/30"
+                          : "border-gray-200"
+                      } focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition-all text-gray-900 placeholder-gray-400`}
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">EGP/yr</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Lump Sum Discount */}
           <div>
             <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
@@ -293,7 +450,10 @@ export default function StepQuotationInfo({
               <div className="flex justify-between">
                 <span className="text-gray-500">Shamel Individual</span>
                 <span className="font-medium text-gray-900">
-                  {result.individualCount} x {formatEGP(result.shamelIndividualYearly)} EGP
+                  {result.individualCount} x {formatEGP(effShamelInd)} EGP
+                  {quotationData.customShamelIndividualPrice !== null && (
+                    <span className="text-cyan-600 text-xs ml-1">*</span>
+                  )}
                 </span>
               </div>
             )}
@@ -301,7 +461,10 @@ export default function StepQuotationInfo({
               <div className="flex justify-between">
                 <span className="text-gray-500">Shamel Family</span>
                 <span className="font-medium text-gray-900">
-                  {result.familyCount} x {formatEGP(result.shamelFamilyYearly)} EGP
+                  {result.familyCount} x {formatEGP(effShamelFam)} EGP
+                  {quotationData.customShamelFamilyPrice !== null && (
+                    <span className="text-cyan-600 text-xs ml-1">*</span>
+                  )}
                 </span>
               </div>
             )}
@@ -309,7 +472,10 @@ export default function StepQuotationInfo({
               <div className="flex justify-between">
                 <span className="text-gray-500">Mini Individual</span>
                 <span className="font-medium text-gray-900">
-                  {result.miniIndividualCount} x {formatEGP(result.miniIndividualYearly)} EGP
+                  {result.miniIndividualCount} x {formatEGP(effMiniInd)} EGP
+                  {quotationData.customMiniIndividualPrice !== null && (
+                    <span className="text-cyan-600 text-xs ml-1">*</span>
+                  )}
                 </span>
               </div>
             )}
@@ -317,14 +483,20 @@ export default function StepQuotationInfo({
               <div className="flex justify-between">
                 <span className="text-gray-500">Mini Family</span>
                 <span className="font-medium text-gray-900">
-                  {result.miniFamilyCount} x {formatEGP(result.miniFamilyYearly)} EGP
+                  {result.miniFamilyCount} x {formatEGP(effMiniFam)} EGP
+                  {quotationData.customMiniFamilyPrice !== null && (
+                    <span className="text-cyan-600 text-xs ml-1">*</span>
+                  )}
                 </span>
               </div>
             )}
             <div className="border-t border-gray-100 pt-3 flex justify-between">
               <span className="text-gray-500">Subtotal (annual)</span>
-              <span className="font-bold text-gray-900">{formatEGP(result.shamelTotalAnnual)} EGP</span>
+              <span className="font-bold text-gray-900">{formatEGP(effTotal)} EGP</span>
             </div>
+            {hasCustomPrices && (
+              <p className="text-xs text-cyan-600">* Custom negotiated price</p>
+            )}
             {quotationData.lumpSumDiscount > 0 && (
               <>
                 <div className="flex justify-between text-green-600">
